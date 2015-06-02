@@ -6,6 +6,8 @@ import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Compute the keyword frequency of JSON models.
@@ -72,14 +74,24 @@ public class Main {
   }
 
   private static void produceCTableAssociation() {
-    char alph = 'a';
-    for (String o : occurrences.keySet()) {
-      System.out.println("{\"" + o + "\",\"" + alph + "\"},");
-      if (alph == 'z')
-	alph = 'A';
-      else
-      	alph++;
+    String alpha = "abcdefghijklmnopqrstuvwxyz0123456789";
 
+    List<String> set = new ArrayList<String>();
+    GenerateUniques(set, "", alpha, 2);
+
+    int i=0;
+
+    for (String o : occurrences.keySet())
+      System.out.println("{\"" + o + "\",\"" + set.get(i++) + "\"},");
+  }
+
+  private static void GenerateUniques(List<String> coll, String prefix, String chars, int depth) {
+    if (depth-- == 0) return;
+    for (int i = 0; i < chars.length(); i++) {
+      String str = prefix + chars.charAt(i);
+      coll.add(str);
+      GenerateUniques(coll, str, chars, depth);
     }
   }
+
 }
