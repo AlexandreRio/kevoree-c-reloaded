@@ -22,7 +22,8 @@ public class Main {
     for (File f : models.listFiles())
       parseFile(f);
 
-    displayResults();
+    //displayResults();
+    produceCTableAssociation();
   }
 
   /**
@@ -34,12 +35,13 @@ public class Main {
   private static void parseFile(File name) {
     try {
       Scanner s = new Scanner(name);
-      Pattern p = Pattern.compile("\"\\w+\"");
+      String pattern = "\"([a-zA-Z.0-9]+)\"";
+      Pattern p = Pattern.compile(pattern);
 
       while (s.hasNextLine()) {
 	Matcher m = p.matcher(s.nextLine());
-	if (m.find()) {
-	  String key = m.group(0);
+	while (m.find()) {
+	  String key = m.group(1);
 	  if (occurrences.containsKey(key)) {
 	    occurrences.put(key, occurrences.get(key) + 1);
 	  } else {
@@ -66,6 +68,18 @@ public class Main {
     for (String o : occurrences.keySet()) {
       freq = ("" + ((double)occurrences.get(o)/totalOccurences)*100).substring(0, 4);
       System.out.println(occurrences.get(o) + "\t" + freq + "%  " + o);
+    }
+  }
+
+  private static void produceCTableAssociation() {
+    char alph = 'a';
+    for (String o : occurrences.keySet()) {
+      System.out.println("{\"" + o + "\",\"" + alph + "\"},");
+      if (alph == 'z')
+	alph = 'A';
+      else
+      	alph++;
+
     }
   }
 }
