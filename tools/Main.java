@@ -5,27 +5,49 @@ import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
+
+import java.util.stream.*;
 
 /**
  * Compute the keyword frequency of JSON models.
  */
 public class Main {
 
+  private static final Comparator<Integer> BY_ASCENDING_ORDER = Integer::compare;
+  private static final Comparator<Integer> BY_DESCENDING_ORDER = BY_ASCENDING_ORDER.reversed();
+
   /** Folder containing JSON files. */
   private static final String PATH = "../models";
   /** Map a keyword to its number of occurrences. */
-  private static Map<String, Integer> occurrences = new Hashtable<String, Integer>();
+  private static Map<String, Integer> occurrences = new LinkedHashMap<String, Integer>();
+  private static final int STAT_DIGIT = 5;
 
   public static void main (String[] args) throws Exception{
     File models = new File(PATH);
     for (File f : models.listFiles())
       parseFile(f);
 
-    //displayResults();
-    produceCTableAssociation();
+
+    Map<String, Integer> sorted = new LinkedHashMap<String, Integer>();
+    occurrences.entrySet().stream()
+      .sorted(Map.Entry.comparingByValue(BY_DESCENDING_ORDER))
+      .forEachOrdered(e -> sorted.put(e.getKey(), e.getValue()));
+    occurrences = sorted;
+
+    if (args.length > 0) {
+      if (args[0].equals("--stat"))
+	displayResults();
+      else if (args[0].equals("--table"))
+	produceCTableAssociation();
+      else
+	System.out.println("Options are --stat and --table");
+    } else
+      System.out.println("Options are --stat and --table");
   }
 
   /**
@@ -37,7 +59,7 @@ public class Main {
   private static void parseFile(File name) {
     try {
       Scanner s = new Scanner(name);
-      String pattern = "\"([a-zA-Z.0-9]+)\"";
+      String pattern = "\"([a-zA-Z._0-9]+)\"";
       Pattern p = Pattern.compile(pattern);
 
       while (s.hasNextLine()) {
@@ -68,8 +90,8 @@ public class Main {
 
     String freq;
     for (String o : occurrences.keySet()) {
-      freq = ("" + ((double)occurrences.get(o)/totalOccurences)*100).substring(0, 4);
-      System.out.println(occurrences.get(o) + "\t" + freq + "%  " + o);
+      freq = ("" + ((double)occurrences.get(o)/totalOccurences)*100).substring(0, STAT_DIGIT);
+      System.err.println(occurrences.get(o) + "\t" + freq + "%  " + o);
     }
   }
 
@@ -81,17 +103,18 @@ public class Main {
 
     int i=0;
 
+    //print on err output for buffer reason
     for (String o : occurrences.keySet())
-      System.out.println("{\"" + o + "\",\"" + set.get(i++) + "\"},");
+      System.err.println("{\"" + o + "\",\"" + set.get(i++) + "\"},");
   }
 
-  private static void GenerateUniques(List<String> coll, String prefix, String chars, int depth) {
-    if (depth-- == 0) return;
-    for (int i = 0; i < chars.length(); i++) {
-      String str = prefix + chars.charAt(i);
-      coll.add(str);
-      GenerateUniques(coll, str, chars, depth);
-    }
+private static void GenerateUniques(List<String> coll, String prefix, String chars, int depth) {
+  if (depth-- == 0) return;
+  for (int i = 0; i < chars.length(); i++) {
+    String str = prefix + chars.charAt(i);
+    coll.add(str);
+    GenerateUniques(coll, str, chars, depth);
   }
+}
 
 }
