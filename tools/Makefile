@@ -9,3 +9,6 @@ code-table:
 
 stat:
 	./stats.sh
+
+clean:
+	rm *.json.compress *.json.decompress *.class *.o compress
