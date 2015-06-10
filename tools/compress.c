@@ -329,7 +329,7 @@ int main(int argc, char *argv[])
     stat(compressed, &buf);
     int comp_size = buf.st_size;
     float ratio = comp_size/(float)sourc_size;
-    printf("Source size: %d, \tcompressed size:%d,\t ratio:%2.3f%%\n", sourc_size, comp_size,ratio);
+    printf("%d, %d\n", sourc_size, comp_size);
     // END STAT INSTRUCTION
   }
   return 0;

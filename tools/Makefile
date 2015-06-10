@@ -1,5 +1,5 @@
 all:
-	gcc compress.c -o compress
+	gcc -m32 compress.c -o compress-x86
 
 code-stat:
 	./run.sh --stat
